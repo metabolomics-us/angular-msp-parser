@@ -1,17 +1,17 @@
 /**
  * Created by Gert on 6/16/2014.
  */
+'use strict';
 
 angular.module('wohlgemuth.msp.parser', []).
 	service('gwMspService', function () {
 
 		/**
-		 * converts the given data to an array of spectra
+		 * converts the given data to an array of spectra objects.
 		 * @param data
-		 * @parm spectraModificationCallBack a function taking a spectra object and returning the given object with
 		 * @returns {*}
 		 */
-		this.convert = function (data, spectraModificationCallBack) {
+		this.convert = function (data) {
 			if (angular.isDefined(data)) {
 
 				//trim white spaces
@@ -23,7 +23,8 @@ angular.module('wohlgemuth.msp.parser', []).
 				//contains our result
 				var result = [];
 
-				var spectra = {meta: []};
+				//defines the complete block of a msp object
+				var blockRegEx = /((?:[\w\s]+:\s*[^\n]*\n?)+)\n((?:\s*\d+\s+\d+;\n?)+)/g;
 
 				//regular expression for getting the attributes
 				var regEx = /\s*(\w+):(.+)\s/g;
@@ -33,56 +34,66 @@ angular.module('wohlgemuth.msp.parser', []).
 
 				var buf = data.toString('utf8');
 
-				var match = regEx.exec(buf);
+				var blocks = blockRegEx.exec(buf);
 
-				//builds our metadata object
-				while (match != null) {
-					console.log(match[1] + ' - ' + match[2]);
+				//go over all available blocks
+				while (blocks != null) {
 
-					if (match[1].toLowerCase() === 'name') {
-						//in case there are RI encoded we extract this information
-						var nameMatch = /(.+)_RI(.*)/.exec(match[2]);
-						if (nameMatch) {
-							spectra.name = trim(nameMatch[1]);
+					//contains the resulting spectra object
+					var spectra = {meta: []};
 
-							spectra.meta.push({name: 'fiehnRi', value: trim(nameMatch[1])})
+					//parse the first block and assign
+					var current = blocks[0];
+					var match = regEx.exec(current);
+
+					//builds our metadata object
+					while (match != null) {
+
+						if (match[1].toLowerCase() === 'name') {
+							//in case there are RI encoded we extract this information
+							var nameMatch = /(.+)_RI(.*)/.exec(match[2]);
+							if (nameMatch) {
+								spectra.name = trim(nameMatch[1]);
+
+								spectra.meta.push({name: 'fiehnRi', value: trim(nameMatch[1])})
+							}
+							else {
+								spectra.name = trim(match[2]);
+							}
 						}
 						else {
-							spectra.name = trim(match[2]);
+							//assign metadata
+							spectra.meta.push({name: trim(match[1]), value: trim(match[2])})
 						}
+
+						match = regEx.exec(current);
+					}
+
+					//builds the actual spectra
+					match = regExSpectra.exec(current);
+					spectra.spectrum = "";
+					while (match != null) {
+						spectra.spectrum = spectra.spectrum + " " + match[1] + ":" + match[2];
+						match = regExSpectra.exec(current);
+					}
+
+					//assign the trimmed spectra
+					spectra.spectrum = trim(spectra.spectrum);
+
+					//make sure we have at least a spectrum and a name
+					if (spectra.spectrum != null && spectra.name != null) {
+
+						//add the spectra to the array
+						result.push(spectra);
 					}
 					else {
-						//assign metadata
-						spectra.meta.push({name: trim(match[1]), value: trim(match[2])})
+						console.log('invalid spectra found -> ignored');
 					}
 
-					match = regEx.exec(buf);
+					//fetch the next matching block
+					blocks = blockRegEx.exec(buf);
 				}
 
-				//builds the actual spectra
-				match = regExSpectra.exec(buf);
-				spectra.spectrum = "";
-				while (match != null) {
-					spectra.spectrum = spectra.spectrum + " " + match[1] + ":" + match[2];
-					match = regExSpectra.exec(buf);
-				}
-
-				//assign the trimmed spectra
-				spectra.spectrum = trim(spectra.spectrum);
-
-				//make sure we have at least a spectrum and a name
-				if (spectra.spectrum != null && spectra.name != null) {
-					//modify the resulting spectra object with our callback
-					if (angular.isDefined(spectraModificationCallBack)) {
-						spectra = spectraModificationCallBack(spectra);
-					}
-
-					//add the spectra to the array
-					result.push(spectra);
-				}
-				else{
-					console.log('invalid spectra found -> ignored');
-				}
 				return result;
 
 			}
