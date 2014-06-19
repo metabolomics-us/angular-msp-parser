@@ -9,7 +9,7 @@ describe('gwMspService test', function () {
 
 		it('should return an empty array if no data is given', inject(function (gwMspService) {
 
-			expect(gwMspService.convert()).toEqual([]);
+			expect(gwMspService.convertToArray()).toEqual([]);
 		}));
 
 		it('should return one spectra for the given test file with 1 spectra in it', inject(function (gwMspService) {
@@ -54,7 +54,7 @@ describe('gwMspService test', function () {
 				"349   15; 350    7; 351    1; 363   17; 364    6; \n" +
 				"365    2; \n";
 
-			var result = gwMspService.convert(data);
+			var result = gwMspService.convertToArray(data);
 
 			expect(result.length).toEqual(1);
 
@@ -156,7 +156,7 @@ describe('gwMspService test', function () {
 				"249    1; 250    1; 252    1; 253    4; 254  776; \n" +
 				"255  349; 256  111; 257   27; 258    4; 259    1; \n";
 
-			var result = gwMspService.convert(data);
+			var result = gwMspService.convertToArray(data);
 
 			console.log(result);
 			expect(result.length).toEqual(3);

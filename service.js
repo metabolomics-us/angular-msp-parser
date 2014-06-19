@@ -6,93 +6,105 @@
 angular.module('wohlgemuth.msp.parser', []).
 	service('gwMspService', function () {
 
+        /**
+         * converts the data using a callback
+         * @param data
+         * @param callback
+         */
+        this.convert = function(data, callback){
+            //trim white spaces
+            var trim = function (str) {
+                return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            };
+
+            //console.log(data);
+            //contains our result
+            var result = [];
+
+            //defines the complete block of a msp object
+            var blockRegEx = /((?:[\w\s]+:\s*[^\n]*\n?)+)\n((?:\s*\d+\s+\d+;\n?)+)/g;
+
+            //regular expression for getting the attributes
+            var regEx = /\s*(\w+):(.+)\s/g;
+
+            //regular expression to extract the spectra
+            var regExSpectra = /(\d+)\s+(\d+);/g;
+
+            var buf = data.toString('utf8');
+
+            var blocks = blockRegEx.exec(buf);
+
+            //go over all available blocks
+            while (blocks != null) {
+
+                //contains the resulting spectra object
+                var spectra = {meta: []};
+
+                //parse the first block and assign
+                var current = blocks[0];
+                var match = regEx.exec(current);
+
+                //builds our metadata object
+                while (match != null) {
+
+                    if (match[1].toLowerCase() === 'name') {
+                        //in case there are RI encoded we extract this information
+                        var nameMatch = /(.+)_RI(.*)/.exec(match[2]);
+                        if (nameMatch) {
+                            spectra.name = trim(nameMatch[1]);
+
+                            spectra.meta.push({name: 'fiehnRi', value: trim(nameMatch[1])})
+                        }
+                        else {
+                            spectra.name = trim(match[2]);
+                        }
+                    }
+                    else {
+                        //assign metadata
+                        spectra.meta.push({name: trim(match[1]), value: trim(match[2])})
+                    }
+
+                    match = regEx.exec(current);
+                }
+
+                //builds the actual spectra
+                match = regExSpectra.exec(current);
+                spectra.spectrum = "";
+                while (match != null) {
+                    spectra.spectrum = spectra.spectrum + " " + match[1] + ":" + match[2];
+                    match = regExSpectra.exec(current);
+                }
+
+                //assign the trimmed spectra
+                spectra.spectrum = trim(spectra.spectrum);
+
+                //make sure we have at least a spectrum and a name
+                if (spectra.spectrum != null && spectra.name != null) {
+                    callback(spectra);
+                }
+                else {
+                    console.log('invalid spectra found -> ignored');
+                }
+
+                //fetch the next matching block
+                blocks = blockRegEx.exec(buf);
+            }
+        };
+
 		/**
-		 * converts the given data to an array of spectra objects.
+		 * converts the given data to an array of spectra objects and it's just a convinience method
 		 * @param data
 		 * @returns {*}
 		 */
-		this.convert = function (data) {
+		this.convertToArray = function (data) {
 			if (angular.isDefined(data)) {
 
-				//trim white spaces
-				var trim = function (str) {
-					return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-				};
+                var result = [];
 
-				//console.log(data);
-				//contains our result
-				var result = [];
+                this.convert(data, function(spectra){
+                    result.push(spectra);
+                });
 
-				//defines the complete block of a msp object
-				var blockRegEx = /((?:[\w\s]+:\s*[^\n]*\n?)+)\n((?:\s*\d+\s+\d+;\n?)+)/g;
-
-				//regular expression for getting the attributes
-				var regEx = /\s*(\w+):(.+)\s/g;
-
-				//regular expression to extract the spectra
-				var regExSpectra = /(\d+)\s+(\d+);/g;
-
-				var buf = data.toString('utf8');
-
-				var blocks = blockRegEx.exec(buf);
-
-				//go over all available blocks
-				while (blocks != null) {
-
-					//contains the resulting spectra object
-					var spectra = {meta: []};
-
-					//parse the first block and assign
-					var current = blocks[0];
-					var match = regEx.exec(current);
-
-					//builds our metadata object
-					while (match != null) {
-
-						if (match[1].toLowerCase() === 'name') {
-							//in case there are RI encoded we extract this information
-							var nameMatch = /(.+)_RI(.*)/.exec(match[2]);
-							if (nameMatch) {
-								spectra.name = trim(nameMatch[1]);
-
-								spectra.meta.push({name: 'fiehnRi', value: trim(nameMatch[1])})
-							}
-							else {
-								spectra.name = trim(match[2]);
-							}
-						}
-						else {
-							//assign metadata
-							spectra.meta.push({name: trim(match[1]), value: trim(match[2])})
-						}
-
-						match = regEx.exec(current);
-					}
-
-					//builds the actual spectra
-					match = regExSpectra.exec(current);
-					spectra.spectrum = "";
-					while (match != null) {
-						spectra.spectrum = spectra.spectrum + " " + match[1] + ":" + match[2];
-						match = regExSpectra.exec(current);
-					}
-
-					//assign the trimmed spectra
-					spectra.spectrum = trim(spectra.spectrum);
-
-					//make sure we have at least a spectrum and a name
-					if (spectra.spectrum != null && spectra.name != null) {
-
-						//add the spectra to the array
-						result.push(spectra);
-					}
-					else {
-						console.log('invalid spectra found -> ignored');
-					}
-
-					//fetch the next matching block
-					blocks = blockRegEx.exec(buf);
-				}
 
 				return result;
 
