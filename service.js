@@ -4,14 +4,17 @@
 'use strict';
 
 angular.module('wohlgemuth.msp.parser', []).
-	service('gwMspService', function () {
+    service('gwMspService', function () {
+
+        //reference to our service
+        var self = this;
 
         /**
          * converts the data using a callback
          * @param data
          * @param callback
          */
-        this.convert = function(data, callback){
+        this.convertWithCallback = function (data, callback) {
             //trim white spaces
             var trim = function (str) {
                 return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -91,26 +94,51 @@ angular.module('wohlgemuth.msp.parser', []).
             }
         };
 
-		/**
-		 * converts the given data to an array of spectra objects and it's just a convinience method
-		 * @param data
-		 * @returns {*}
-		 */
-		this.convertToArray = function (data) {
-			if (angular.isDefined(data)) {
+        /**
+         * converts the given data to an array of spectra objects and it's just a convinience method
+         * @param data
+         * @returns {*}
+         */
+        this.convertToArray = function (data) {
+            if (angular.isDefined(data)) {
 
                 var result = [];
 
-                this.convert(data, function(spectra){
+                this.convertWithCallback(data, function (spectra) {
                     result.push(spectra);
                 });
 
 
-				return result;
+                return result;
 
-			}
-			else {
-				return [];
-			}
-		}
-	});
+            }
+            else {
+                return [];
+            }
+        };
+
+        /**
+         * reads the given file and try's to convert the data from it to spectra, the callback method is going to take care of the details
+         * @param file
+         * @param callback
+         */
+        this.convertFromFile = function (file, callback) {
+
+            //if it's an arry, recrusive approach
+            if (angular.isArray(file)) {
+                for (var i = 0; i < file.length; i++) {
+                    self.convertFromFile(file[i], callback);
+                }
+            }
+            //otherwise just convert it
+            else {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    self.convertWithCallback(data,callback);
+                };
+
+                reader.readAsText(file);
+            }
+        }
+    });
