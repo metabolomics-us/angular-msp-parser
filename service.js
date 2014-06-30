@@ -56,7 +56,9 @@ angular.module('wohlgemuth.msp.parser', []).
                         if (nameMatch) {
                             spectra.name = trim(nameMatch[1]);
 
-                            spectra.meta.push({name: 'fiehnRi', value: trim(nameMatch[1])})
+                            spectra.meta.push({name: 'fiehnRi', values: [
+                                {value: trim(nameMatch[1])}
+                            ]})
                         }
                         else {
                             spectra.name = trim(match[2]);
@@ -64,7 +66,9 @@ angular.module('wohlgemuth.msp.parser', []).
                     }
                     else {
                         //assign metadata
-                        spectra.meta.push({name: trim(match[1]), value: trim(match[2])})
+                        spectra.meta.push({name: trim(match[1]), values: [
+                            {value: trim(match[2])}
+                        ]})
                     }
 
                     match = regEx.exec(current);
@@ -135,7 +139,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     var data = e.target.result;
-                    self.convertWithCallback(data,callback);
+                    self.convertWithCallback(data, callback);
                 };
 
                 reader.readAsText(file);
