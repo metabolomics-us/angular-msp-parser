@@ -3,169 +3,130 @@
  */
 describe('gwMspService test', function () {
 
-	describe('when I call gwMspService.convert', function () {
-		beforeEach(module('wohlgemuth.msp.parser'));
+    describe('when I call gwMspService.convert', function () {
+        beforeEach(module('wohlgemuth.msp.parser'));
 
 
-		it('should return an empty array if no data is given', inject(function (gwMspService) {
+        it('should return one spectra for the given test file with 1 spectra in it', inject(function (gwMspService, $log, $q, $filter) {
 
-			expect(gwMspService.convertToArray()).toEqual([]);
-		}));
+            var data =
+                "Name: glutamate_RI 528609 \n" +
+                "Synon: ##chromatogram=060121bylcs01 \n" +
+                "Formula: n/a \n" +
+                "CASNO: 56860 \n" +
+                "ID: 483 \n" +
+                "Comment: fiehn \n" +
+                "Num peaks: 151 \n" +
+                "85   78;  86   52;  87   24;  88   15;  89   18; \n" +
+                "90    4;  91    3;  92    2;  93    6;  94    2; \n" +
+                "95   11;  96    8;  97    9;  98   39;  99   33; \n" +
+                "100  308; 101   64; 102   32; 103   52; 104    7; \n" +
+                "105   12; 106    1; 107    1; 108    1; 110    7; \n" +
+                "111    3; 112   45; 113   42; 114   70; 115   65; \n" +
+                "116   28; 117   52; 118   11; 119   19; 120    2; \n" +
+                "121    1; 124    2; 125    1; 126    8; 127    5; \n" +
+                "128  928; 129  191; 130   81; 131   83; 132   60; \n" +
+                "133  191; 134   32; 135   20; 136    2; 139    2; \n" +
+                "140  101; 141   15; 142   13; 143   10; 144   11; \n" +
+                "145    6; 146    6; 147  558; 148   99; 149  143; \n" +
+                "150   20; 151    9; 152    1; 153    1; 154    8; \n" +
+                "155    9; 156  498; 157   84; 158   93; 159   19; \n" +
+                "160    9; 161    4; 162    2; 163    8; 164    1; \n" +
+                "168    4; 169    2; 170    3; 171    1; 172   11; \n" +
+                "173    5; 174   18; 175    4; 176    3; 177    5; \n" +
+                "178    1; 182    1; 183    1; 184    3; 185    1; \n" +
+                "186    5; 187    2; 188    8; 189    8; 190    4; \n" +
+                "191    3; 192    1; 193    1; 198    2; 199    1; \n" +
+                "200    2; 201    1; 202   20; 203   13; 204   53; \n" +
+                "205   13; 206    5; 207    2; 214   21; 215    5; \n" +
+                "216   10; 217    2; 218   56; 219   14; 220    5; \n" +
+                "221   20; 222    4; 223    2; 228    3; 229    3; \n" +
+                "230  187; 231   42; 232   21; 233    3; 244    4; \n" +
+                "245   16; 246  999; 247  222; 248   94; 249   15; \n" +
+                "250    3; 258   30; 259    7; 260    4; 272    1; \n" +
+                "273    2; 274   11; 275    3; 276    1; 320   10; \n" +
+                "321    3; 322    1; 332    1; 347    1; 348   42; \n" +
+                "349   15; 350    7; 351    1; 363   17; 364    6; \n" +
+                "365    2; \n";
 
-		it('should return one spectra for the given test file with 1 spectra in it', inject(function (gwMspService) {
+            var result = gwMspService.convertFromData(data, function (result) {
 
-			var data =
-				"Name: glutamate_RI 528609 \n" +
-				"Synon: ##chromatogram=060121bylcs01 \n" +
-				"Formula: n/a \n" +
-				"CASNO: 56860 \n" +
-				"ID: 483 \n" +
-				"Comment: fiehn \n" +
-				"Num peaks: 151 \n" +
-				"85   78;  86   52;  87   24;  88   15;  89   18; \n" +
-				"90    4;  91    3;  92    2;  93    6;  94    2; \n" +
-				"95   11;  96    8;  97    9;  98   39;  99   33; \n" +
-				"100  308; 101   64; 102   32; 103   52; 104    7; \n" +
-				"105   12; 106    1; 107    1; 108    1; 110    7; \n" +
-				"111    3; 112   45; 113   42; 114   70; 115   65; \n" +
-				"116   28; 117   52; 118   11; 119   19; 120    2; \n" +
-				"121    1; 124    2; 125    1; 126    8; 127    5; \n" +
-				"128  928; 129  191; 130   81; 131   83; 132   60; \n" +
-				"133  191; 134   32; 135   20; 136    2; 139    2; \n" +
-				"140  101; 141   15; 142   13; 143   10; 144   11; \n" +
-				"145    6; 146    6; 147  558; 148   99; 149  143; \n" +
-				"150   20; 151    9; 152    1; 153    1; 154    8; \n" +
-				"155    9; 156  498; 157   84; 158   93; 159   19; \n" +
-				"160    9; 161    4; 162    2; 163    8; 164    1; \n" +
-				"168    4; 169    2; 170    3; 171    1; 172   11; \n" +
-				"173    5; 174   18; 175    4; 176    3; 177    5; \n" +
-				"178    1; 182    1; 183    1; 184    3; 185    1; \n" +
-				"186    5; 187    2; 188    8; 189    8; 190    4; \n" +
-				"191    3; 192    1; 193    1; 198    2; 199    1; \n" +
-				"200    2; 201    1; 202   20; 203   13; 204   53; \n" +
-				"205   13; 206    5; 207    2; 214   21; 215    5; \n" +
-				"216   10; 217    2; 218   56; 219   14; 220    5; \n" +
-				"221   20; 222    4; 223    2; 228    3; 229    3; \n" +
-				"230  187; 231   42; 232   21; 233    3; 244    4; \n" +
-				"245   16; 246  999; 247  222; 248   94; 249   15; \n" +
-				"250    3; 258   30; 259    7; 260    4; 272    1; \n" +
-				"273    2; 274   11; 275    3; 276    1; 320   10; \n" +
-				"321    3; 322    1; 332    1; 347    1; 348   42; \n" +
-				"349   15; 350    7; 351    1; 363   17; 364    6; \n" +
-				"365    2; \n";
+                console.log($filter('json')(result));
+                expect(result.name).toEqual('glutamate');
+                expect(result.meta);
+                expect(result.accurate == false);
+            });
 
-			var result = gwMspService.convertToArray(data);
-
-			expect(result.length).toEqual(1);
-
-			console.log(result[0].name);
-			expect(result[0].name).toEqual('glutamate');
-			expect(result[0].meta);
-		}));
-
-		it('should return 3 spectra for the given object with 3 defined spectra', inject(function (gwMspService) {
-			var data =
-				"Name: 1,3-diaminopropane_RI 546361" +
-				"Synon: ##chromatogram=060112bylcs11 \n" +
-				"CASNO: 109762 \n" +
-				"ID: 1361 \n" +
-				"Comment: fiehn \n" +
-				"Num peaks: 86 \n" +
-				"85   24;  86  922;  87   90;  88   41;  89    4; \n" +
-				"97    1;  98   22;  99   17; 100  454; 101   73; \n" +
-				"102   61; 103   17; 104    4; 105    1; 110    1; \n" +
-				"111    1; 112   30; 113   32; 114   59; 115   34; \n" +
-				"116   72; 117   65; 118   13; 119    4; 125    1; \n" +
-				"126    9; 127    5; 128   99; 129   37; 130  320; \n" +
-				"131   85; 132   45; 133    7; 134    2; 140    1; \n" +
-				"141    1; 142    7; 143    4; 144   24; 145    7; \n" +
-				"146   65; 147   10; 148    4; 156    7; 157    3; \n" +
-				"158   34; 159    6; 160  395; 161   69; 162   31; \n" +
-				"163    3; 170   20; 171   12; 172  571; 173  109; \n" +
-				"174  999; 175  177; 176   78; 177    9; 178    1; \n" +
-				"184    3; 185    9; 186  172; 187   37; 188   31; \n" +
-				"189    6; 190    4; 191    1; 192    1; 199    2; \n" +
-				"200    5; 201  338; 202   74; 203   31; 204    5; \n" +
-				"205    1; 215    1; 217    1; 218    1; 243    1; \n" +
-				"259   18; 260    5; 261    2; 273    1; 287    1; \n" +
-				"347    1; \n" +
-				"\n" +
-				"Name: 2-deoxyuridine_RI 8308728 \n" +
-				"Synon: ##chromatogram=051108bylcs20 \n" +
-				"CASNO: 951780 \n" +
-				"ID: 1362 \n" +
-				"Comment: fiehn \n" +
-				"Num peaks: 122 \n" +
-				"85   25;  86    6;  87   15;  88    5;  89   27; \n" +
-				"90    3;  91    4;  92    2;  93    2;  94    4; \n" +
-				"95   14;  96   37;  97   11;  98    7;  99   59; \n" +
-				"100   18; 101  105; 102   13; 103  999; 104   95; \n" +
-				"105   45; 106    3; 107    1; 108    9; 109    3; \n" +
-				"110    1; 111   25; 112   21; 113   33; 114    6; \n" +
-				"115   21; 116   14; 117  184; 118   19; 119   13; \n" +
-				"120    2; 121    1; 122    2; 123    1; 124    6; \n" +
-				"125   11; 126    7; 127   23; 128    5; 129  134; \n" +
-				"130   16; 131   31; 132    3; 133   62; 134    8; \n" +
-				"135    6; 136    3; 137    1; 138    1; 139    2; \n" +
-				"140    2; 141    6; 142   11; 143   25; 144    3; \n" +
-				"145   67; 146    7; 147   80; 148   12; 149   11; \n" +
-				"150    3; 151    6; 152    1; 153    1; 154    2; \n" +
-				"155   77; 156   11; 157   31; 158    4; 159    3; \n" +
-				"163    2; 167    1; 168    3; 169   66; 170   47; \n" +
-				"171  189; 172   29; 173   12; 174    2; 175    2; \n" +
-				"177    2; 183    2; 184    9; 185    6; 186    1; \n" +
-				"187    1; 189   16; 190    2; 191    2; 192    4; \n" +
-				"193    1; 195    5; 196    2; 197    1; 204    1; \n" +
-				"211   14; 212    2; 215    1; 217   13; 218    2; \n" +
-				"219    2; 229    2; 231    1; 239    1; 240    1; \n" +
-				"242    2; 243    1; 245    4; 246    1; 249    2; \n" +
-				"261   24; 262    5; 263    2; 264    1; 267    3; \n" +
-				"282    1; 327    1; \n" +
-				"\n" +
-				"Name: cytosin_RI 486112 \n" +
-				"Synon: ##chromatogram=060118bylcs10 \n" +
-				"CASNO: 71307 \n" +
-				"ID: 1363 \n" +
-				"Comment: fiehn \n" +
-				"Num peaks: 135 \n" +
-				"85   62;  86  126;  88   13;  89    4;  90    1; \n" +
-				"91   14;  92    6;  93   11;  94   22;  95   83; \n" +
-				"96   32;  97   74;  98  999;  99  170; 100  539; \n" +
-				"101  115; 102   39; 103   16; 104    4; 105   29; \n" +
-				"106    3; 107    2; 108    3; 109   23; 110   20; \n" +
-				"111   21; 112   43; 113  105; 114   80; 115   31; \n" +
-				"116   37; 117   17; 118    5; 119    2; 120   13; \n" +
-				"121    2; 122    2; 123   36; 124   26; 125  257; \n" +
-				"126   41; 127   31; 128   11; 129    4; 130  132; \n" +
-				"131   66; 132   37; 133   18; 134    5; 135    1; \n" +
-				"136    6; 137    3; 138   12; 139   18; 140   22; \n" +
-				"141   14; 142    7; 143    3; 144    2; 145    1; \n" +
-				"146  115; 147  234; 148   44; 149   18; 150   51; \n" +
-				"151    8; 152   30; 153    7; 154    9; 155   17; \n" +
-				"156   39; 157   27; 158   11; 159    3; 160    1; \n" +
-				"164    3; 165    1; 166   12; 167   13; 168   83; \n" +
-				"169   14; 170  447; 171   91; 172   44; 173    8; \n" +
-				"174    2; 180    3; 181    7; 182   59; 183   18; \n" +
-				"184   17; 185    3; 186    2; 194    2; 195    2; \n" +
-				"196    2; 197   38; 198   12; 199    6; 200    2; \n" +
-				"208    1; 209    1; 210    9; 211    4; 212    3; \n" +
-				"213   10; 214    2; 215    1; 222    1; 224   26; \n" +
-				"225    6; 226    3; 227    1; 237    2; 238  149; \n" +
-				"239   41; 240  710; 241  154; 242   63; 243    9; \n" +
-				"244    2; 245    1; 246    1; 247    1; 248    1; \n" +
-				"249    1; 250    1; 252    1; 253    4; 254  776; \n" +
-				"255  349; 256  111; 257   27; 258    4; 259    1; \n";
-
-			var result = gwMspService.convertToArray(data);
-
-			console.log(result);
-			expect(result.length).toEqual(3);
-			expect(result[0].name).toEqual('1,3-diaminopropane');
-			expect(result[1].name).toEqual('2-deoxyuridine');
-			expect(result[2].name).toEqual('cytosin');
+            expect(result === true);
 
 
-		}))
-	})
+        }));
+
+        it('should return one spectra for the given test file with 1 spectra in it, which contains double values as spectra object', inject(function (gwMspService, $log, $q, $filter) {
+
+            var data =
+                "NAME: 1,2-Dithiane-4,5-diol-S-oxide \n" +
+                "PRECURSORMZ: 168.9988 \n" +
+                "INSTRUMENTTYPE: QqQ/triple quadrupole \n" +
+                "INSTRUMENT: Micromass Quattro Micro \n" +
+                "COLLISIONENERGY: 3 \n" +
+                "COLLISIONGAS: Ar \n" +
+                "FORMULA: C4H8O3S2 \n" +
+                "RETENTIONTIME: -1 \n" +
+                "IONMODE: P \n" +
+                "IN-SOURCEVOLTAGE: 20 \n" +
+                "Num Peaks: 7 \n" +
+                "85.4	3.14 \n" +
+                "86.6	1.86 \n" +
+                "87.1	18.6 \n" +
+                "87.6	1.38 \n" +
+                "133.3	4.96 \n" +
+                "151.2	7.96 \n" +
+                "169.2	999 \n";
+
+
+            var result = gwMspService.convertFromData(data, function (result) {
+
+                console.log($filter('json')(result));
+                expect(result.name).toEqual('1,2-Dithiane-4,5-diol-S-oxide');
+                expect(result.meta);
+                expect(result.accurate == false);
+            });
+
+            expect(result === true);
+        }));
+
+        it('should return one spectra for the given test file with 1 spectra in it, which contains double values as spectra object and is an accurate mass spectra', inject(function (gwMspService, $log, $q, $filter) {
+
+            var data =
+
+            "Name: 18:3 Cholesteryl ester; [M+H]+\n"+
+            "MW: 646.56888\n"+
+            "PRECURSORMZ: 664.60325\n"+
+            "RETENTIONTIME: 9.98500\n"+
+            "FORMULA: C45H74O2\n"+
+            "Comment: Parent=664.60325 Mz_exact=646.56888 ; C45H74O2; [M+NH4]+\n"+
+            "Num Peaks: 7\n"+
+            "664.60325 100 \"[M+NH4]\"\n"+
+            "646.56888 50 \"[M+H]-H2O\"\n"+
+            "369.35213 999 \"Sterol Fragments\"\n"+
+            "175.14868 200 \"C13H19\"\n"+
+            "161.13303 200 \"C12H17\"\n"+
+            "147.11738 200 \"C11H15\"\n"+
+            "135.11738 200 \"C10H15\"\n";
+
+
+            var result = gwMspService.convertFromData(data, function (result) {
+
+                console.log($filter('json')(result));
+                expect(result.name).toEqual('18:3 Cholesteryl ester; [M+H]+');
+                expect(result.meta);
+                expect(result.accurate == false);
+            });
+
+            expect(result === true);
+
+        }))
+    })
 
 });
