@@ -7,7 +7,7 @@ describe('gwMspService test', function () {
         beforeEach(module('wohlgemuth.msp.parser'));
 
 
-        it('should return one spectra for the given test file with 1 spectra in it', inject(function (gwMspService, $log, $q, $filter) {
+        it('should return one spectra for the given test file with 1 spectra in it', inject(function (gwMspService, $filter) {
 
             var data =
                 "Name: glutamate_RI 528609 \n" +
@@ -100,28 +100,62 @@ describe('gwMspService test', function () {
 
             var data =
 
-            "Name: 18:3 Cholesteryl ester; [M+H]+\n"+
-            "MW: 646.56888\n"+
-            "PRECURSORMZ: 664.60325\n"+
-            "RETENTIONTIME: 9.98500\n"+
-            "FORMULA: C45H74O2\n"+
-            "Comment: Parent=664.60325 Mz_exact=646.56888 ; C45H74O2; [M+NH4]+\n"+
-            "Num Peaks: 7\n"+
-            "664.60325 100 \"[M+NH4]\"\n"+
-            "646.56888 50 \"[M+H]-H2O\"\n"+
-            "369.35213 999 \"Sterol Fragments\"\n"+
-            "175.14868 200 \"C13H19\"\n"+
-            "161.13303 200 \"C12H17\"\n"+
-            "147.11738 200 \"C11H15\"\n"+
-            "135.11738 200 \"C10H15\"\n";
+                "Name: 18:3 Cholesteryl ester; [M+H]+\n" +
+                "MW: 646.56888\n" +
+                "PRECURSORMZ: 664.60325\n" +
+                "RETENTIONTIME: 9.98500\n" +
+                "FORMULA: C45H74O2\n" +
+                "Comment: Parent=664.60325 Mz_exact=646.56888 ; C45H74O2; [M+NH4]+\n" +
+                "Num Peaks: 7\n" +
+                "664.60325 100 \"[M+NH4]\"\n" +
+                "646.56888 50 \"[M+H]-H2O\"\n" +
+                "369.35213 999 \"Sterol Fragments\"\n" +
+                "175.14868 200 \"C13H19\"\n" +
+                "161.13303 200 \"C12H17\"\n" +
+                "147.11738 200 \"C11H15\"\n" +
+                "135.11738 200 \"C10H15\"\n";
 
 
             var result = gwMspService.convertFromData(data, function (result) {
 
                 console.log($filter('json')(result));
-                expect(result.name).toEqual('18:3 Cholesteryl ester; [M+H]+');
+                expect(result.name).toEqual('18:3 Cholesteryl ester');
                 expect(result.meta);
                 expect(result.accurate == false);
+            });
+
+            expect(result === true);
+
+        }));
+
+        it('should return one spectra for the given test file with 1 spectra in it, which contains double values as spectra object and is an accurate mass spectra and have external ids', inject(function (gwMspService, $log, $q, $filter) {
+
+            var data =
+                "NAME: Metamitron-desamino; LC-ESI-ITFT; MS2; CE: 35%; R=7500; [M+H]+\n" +
+                "PRECURSORMZ: 188.0818\n" +
+                "INSTRUMENTTYPE: LC-ESI-ITFT\n" +
+                "INSTRUMENT: LTQ Orbitrap XL Thermo Scientific\n" +
+                "License: CC BY-SA\n" +
+                "COLLISIONENERGY: 35 % (nominal)\n" +
+                "FORMULA: C10H9N3O1\n" +
+                "RETENTIONTIME: -1\n" +
+                "IONMODE: P\n" +
+                "SearchID: MassBank: EA000401; KEGG: ; CAS: CAS 36993-94-9; ChemSpider: 157884; PubChem CID: 181502; PubChem SID:\n" +
+                "Num Peaks: 7\n" +
+                "77.0385	5\n" +
+                "85.0396	17\n" +
+                "104.0495	75\n" +
+                "119.0604	132\n" +
+                "147.0555	3\n" +
+                "160.0871	999\n" +
+                "188.082	86\n";
+
+            var result = gwMspService.convertFromData(data, function (result) {
+
+                console.log($filter('json')(result));
+                expect(result.name).toEqual('Metamitron-desamino');
+                expect(result.meta);
+                expect(result.accurate == true);
             });
 
             expect(result === true);

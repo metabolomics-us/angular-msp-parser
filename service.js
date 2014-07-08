@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('wohlgemuth.msp.parser', []).
-    service('gwMspService', function ($log, $filter) {
+    service('gwMspService', function ($log) {
 
         //reference to our service
         var self = this;
@@ -19,6 +19,7 @@ angular.module('wohlgemuth.msp.parser', []).
 
             //check if we have a Retention Index in the name field
             var nameMatch = /(.+)_RI(.*)/.exec(value);
+            var nameCombinedWithInstruments = /\s*([:\w\d\s-]+);/.exec(value);
             if (nameMatch) {
                 //sets the new name
                 spectra.name = trim(nameMatch[1]);
@@ -28,7 +29,11 @@ angular.module('wohlgemuth.msp.parser', []).
                     {name: 'Retention Index', value: trim(nameMatch[2])}
                 )
             }
+            else if (nameCombinedWithInstruments) {
+                spectra.name = trim(nameCombinedWithInstruments[1]);
+            }
             else {
+
                 spectra.name = trim(value);
             }
 
@@ -39,17 +44,21 @@ angular.module('wohlgemuth.msp.parser', []).
          * handles a given metadata field and might does additional modifcations
          * @param value
          * @param spectra
+         * @param regex regular expression, must provide 2 groups!
          * @returns {*}
          */
-        function handleMetaDataField(value, spectra) {
-            var extractValue = /(\w+)\s*=\s*([0-9]*\.?[0-9]+)/g;
+        function handleMetaDataField(value, spectra, regex, category) {
+            if (angular.isUndefined(category)) {
+                category = "none"
+            }
+            var extractValue = regex;
             var match = extractValue.exec(value);
 
             while (match != null) {
 
                 spectra.meta.push(
                     {
-                        name: trim(match[1]), value: trim(match[2])
+                        name: trim(match[1]), value: trim(match[2]), category: category
                     }
                 );
                 match = extractValue.exec(value);
@@ -62,6 +71,32 @@ angular.module('wohlgemuth.msp.parser', []).
          */
         function trim(str) {
             return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+        }
+
+        /**
+         * inspects our metadata fields and does additional modifications, as required
+         * @param match
+         * @param spectra
+         * @returns {*}
+         */
+        function inspectFields(match, spectra) {
+            //comment fields have quite often additional infomation in them
+            if (match[1].toLowerCase() === 'comment') {
+                spectra = handleMetaDataField(match[2], spectra, /(\w+)\s*=\s*([0-9]*\.?[0-9]+)/g);
+            }
+            //can contain a lot of different id's in case of massbank generated msp files
+            else if (match[1].toLowerCase() === 'searchid') {
+                spectra = handleMetaDataField(match[2], spectra, /(\w+\s?\w*)+:\s*([\w\d]+[ \w\d-]+)/g, "external ids");
+            }
+            //any other metadata field
+            else {
+                //assign metadata
+                spectra.meta.push(
+                    {name: trim(match[1]), value: trim(match[2])}
+                )
+            }
+
+            return spectra;
         }
 
         /**
@@ -106,10 +141,11 @@ angular.module('wohlgemuth.msp.parser', []).
             //return code
             var foundBlocks = false;
             //go over all available blocks
+
             while (blocks != null) {
 
                 //contains the resulting spectra object
-                var spectra = {meta: [], annotations: []};
+                var spectra = {meta: []};
 
                 //parse the first block and assign
                 var current = blocks[0];
@@ -123,17 +159,8 @@ angular.module('wohlgemuth.msp.parser', []).
                         spectra = handleName(match[2], spectra);
                     }
                     else {
-                        if (match[1].toLowerCase() === 'comment') {
-                            spectra = handleMetaDataField(match[2], spectra);
-                        }
-                        else {
-                            //assign metadata
-                            spectra.meta.push(
-                                {name: trim(match[1]), value: trim(match[2])}
-                            )
-                        }
+                        spectra = inspectFields(match, spectra);
                     }
-
                     match = regExAttributes.exec(current);
                 }
 
@@ -151,8 +178,8 @@ angular.module('wohlgemuth.msp.parser', []).
                         spectra.accurate = false;
                     }
 
-                    if(angular.isDefined(match[3])){
-                        spectra.meta.push({name: trim(match[3]), value:match[1], category:'annotation'});
+                    if (angular.isDefined(match[3])) {
+                        spectra.meta.push({name: trim(match[3]), value: match[1], category: 'annotation'});
                     }
 
                     //get the next match
@@ -173,7 +200,6 @@ angular.module('wohlgemuth.msp.parser', []).
 
                 //fetch the next matching block
                 blocks = blockRegEx.exec(buf);
-
             }
 
             return foundBlocks;
