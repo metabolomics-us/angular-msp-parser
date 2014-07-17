@@ -26,7 +26,7 @@ angular.module('wohlgemuth.msp.parser', []).
 
                 //adds it as retention index
                 spectra.meta.push(
-                    {name: 'Retention Index', value: trim(nameMatch[2])}
+                    {name: 'Retention Index', value: trim(nameMatch[2]), category: findCategory('Retention Index')}
                 )
             }
             else if (nameCombinedWithInstruments) {
@@ -56,11 +56,15 @@ angular.module('wohlgemuth.msp.parser', []).
 
             while (match != null) {
 
-                spectra.meta.push(
-                    {
-                        name: trim(match[1]), value: trim(match[2]), category: category
-                    }
-                );
+                var name = trim(match[1]);
+                var parsedValue = trim(match[2]);
+                if (ignoreField(name, parsedValue) == false) {
+                    spectra.meta.push(
+                        {
+                            name: name, value: parsedValue, category: category
+                        }
+                    );
+                }
                 match = extractValue.exec(value);
             }
             return spectra;
@@ -86,17 +90,97 @@ angular.module('wohlgemuth.msp.parser', []).
             }
             //can contain a lot of different id's in case of massbank generated msp files
             else if (match[1].toLowerCase() === 'searchid') {
-                spectra = handleMetaDataField(match[2], spectra, /(\w+\s?\w*)+:\s*([\w\d]+[ \w\d-]+)/g, "external ids");
+                spectra = handleMetaDataField(match[2], spectra, /(\w+\s?\w*)+:\s*([\w\d]+[ \w\d-]+)/g, "Database Identifier");
+            }
+            //this mass bank special flag provides some derivatization information
+            else if (match[1].toLowerCase() === 'ms$focused_ion') {
+                spectra = handleMetaDataField(match[2], spectra, /\s*(.+):(.+)/g, "Derivatization");
             }
             //any other metadata field
             else {
-                //assign metadata
-                spectra.meta.push(
-                    {name: trim(match[1]), value: trim(match[2])}
-                )
+                var name = match[1];
+                var value = match[2];
+
+                if (ignoreField(name, value) == false) {
+                    //assign metadata
+                    spectra.meta.push(
+                        {
+                            name: name,
+                            value: value,
+                            category: findCategory(name)
+                        }
+                    )
+                }
             }
 
             return spectra;
+        }
+
+        /**
+         * finds the related category for the given name, Will be an additional module at a later point TODO
+         * @param name
+         */
+        function findCategory(name) {
+            var name = name.toLocaleLowerCase();
+
+            var category = "none";
+            //masspectral properties
+            if (name === '') {
+
+            }
+            else if (
+                name === 'num peaks' ||
+                name === 'retentionindex' ||
+                name === 'retentiontime'
+                ) {
+                category = "spectral properties";
+            }
+
+            //aquisition properties
+            else if (name === 'instrument' || name === 'instrumenttype' || name == 'ionmode' || name == 'precursormz') {
+                category = "acquisition properties";
+            }
+
+            return category
+
+        }
+
+        /**
+         * ignores a given field, if a certain value is not as exspected. Will be an additional module at a later point TODO
+         * @param name
+         * @param value
+         * @returns {boolean}
+         */
+        function ignoreField(name, value) {
+
+            if (value.length == 0) {
+                return true;
+            }
+
+            name = name.toLowerCase();
+
+            if (name == "retentiontime" && value <= 0) {
+                return true;
+            }
+            else if (name == "retentionindex" && value <= 0) {
+                return true;
+            }
+            //if 0, it doesn't count
+            else if ((name === "precursormz" || name === "derivative_mass" || name === 'parent') && value <= 0) {
+                return true;
+            }
+            //we get this over the inchi key
+            else if (name == "formula") {
+                return true;
+            }
+            else if(name == "synon"){
+                return true;
+            }
+            else if(name == "id"){
+                return true
+            }
+
+            return false;
         }
 
         /**
@@ -118,7 +202,7 @@ angular.module('wohlgemuth.msp.parser', []).
              * extracts the attribures like 'name' and 'value' from a found line
              * @type {RegExp}
              */
-            var regExAttributes = /\s*([a-zA-Z ]+):(.+)\s/g;
+            var regExAttributes = /\s*([a-zA-Z _$]+):(.+)\s/g;
 
             /**
              * first block captures meta data
