@@ -45,6 +45,7 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param value
          * @param spectra
          * @param regex regular expression, must provide 2 groups!
+         * @param category
          * @returns {*}
          */
         function handleMetaDataField(value, spectra, regex, category) {
@@ -287,31 +288,6 @@ angular.module('wohlgemuth.msp.parser', []).
             }
 
             return foundBlocks;
-        };
-
-        /**
-         * reads the given file and try's to convert the data from it to spectra, the callback method is going to take care of the details
-         * @param file
-         * @param callback
-         */
-        this.convertFromFile = function (file, callback) {
-
-            //if it's an arry, recrusive approach
-            if (angular.isArray(file)) {
-                for (var i = 0; i < file.length; i++) {
-                    self.convertFromFile(file[i], callback);
-                }
-            }
-            //otherwise just convert it
-            else {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var data = e.target.result;
-                    self.convertWithCallback(data, callback);
-                };
-
-                reader.readAsText(file);
-            }
         };
 
         this.convertFromData = function (data, callback) {
