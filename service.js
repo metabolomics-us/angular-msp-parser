@@ -5,21 +5,17 @@
 
 angular.module('wohlgemuth.msp.parser', []).
     service('gwMspService', function ($log) {
-
-        //reference to our service
-        var self = this;
-
         /**
          * parses the name field content and modifies the spectra object accordingly
          * @param value
-         * @param spectraObject
+         * @param spectra
          * @returns {*}
          */
         function handleName(value, spectra) {
-
             //check if we have a Retention Index in the name field
             var nameMatch = /(.+)_RI(.*)/.exec(value);
             var nameCombinedWithInstruments = /\s*([:\w\d\s-]+);/.exec(value);
+
             if (nameMatch) {
                 //sets the new name
                 spectra.name = trim(nameMatch[1]);
@@ -28,12 +24,9 @@ angular.module('wohlgemuth.msp.parser', []).
                 spectra.meta.push(
                     {name: 'Retention Index', value: trim(nameMatch[2]), category: findCategory('Retention Index')}
                 )
-            }
-            else if (nameCombinedWithInstruments) {
+            } else if (nameCombinedWithInstruments) {
                 spectra.name = trim(nameCombinedWithInstruments[1]);
-            }
-            else {
-
+            } else {
                 spectra.name = trim(value);
             }
 
@@ -41,7 +34,7 @@ angular.module('wohlgemuth.msp.parser', []).
         }
 
         /**
-         * handles a given metadata field and might does additional modifcations
+         * handles a given metadata field and might does additional modifications
          * @param value
          * @param spectra
          * @param regex regular expression, must provide 2 groups!
@@ -52,27 +45,26 @@ angular.module('wohlgemuth.msp.parser', []).
             if (angular.isUndefined(category)) {
                 category = "none"
             }
+
             var extractValue = regex;
             var match = extractValue.exec(value);
 
             while (match != null) {
-
                 var name = trim(match[1]);
                 var parsedValue = trim(match[2]);
+
                 if (ignoreField(name, parsedValue) == false) {
-                    spectra.meta.push(
-                        {
-                            name: name, value: parsedValue, category: category
-                        }
-                    );
+                    spectra.meta.push({name: name, value: parsedValue, category: category });
                 }
                 match = extractValue.exec(value);
             }
+
             return spectra;
         }
 
         /**
          * simple trimming function
+         * @param str
          */
         function trim(str) {
             return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -89,14 +81,17 @@ angular.module('wohlgemuth.msp.parser', []).
             if (match[1].toLowerCase() === 'comment') {
                 spectra = handleMetaDataField(match[2], spectra, /(\w+)\s*=\s*([0-9]*\.?[0-9]+)/g);
             }
+
             //can contain a lot of different id's in case of massbank generated msp files
             else if (match[1].toLowerCase() === 'searchid') {
                 spectra = handleMetaDataField(match[2], spectra, /(\w+\s?\w*)+:\s*([\w\d]+[ \w\d-]+)/g, "Database Identifier");
             }
+
             //this mass bank special flag provides some derivatization information
             else if (match[1].toLowerCase() === 'ms$focused_ion') {
                 spectra = handleMetaDataField(match[2], spectra, /\s*(.+):(.+)/g, "Derivatization");
             }
+
             //any other metadata field
             else {
                 var name = match[1];
@@ -123,27 +118,21 @@ angular.module('wohlgemuth.msp.parser', []).
          */
         function findCategory(name) {
             var name = name.toLocaleLowerCase();
-
             var category = "none";
-            //masspectral properties
-            if (name === '') {
 
-            }
-            else if (
-                name === 'num peaks' ||
-                name === 'retentionindex' ||
-                name === 'retentiontime'
-                ) {
+            //mass spectral properties
+            if (name === '') {}
+
+            else if (name === 'num peaks' || name === 'retentionindex' || name === 'retentiontime') {
                 category = "spectral properties";
             }
 
-            //aquisition properties
+            // acquisition properties
             else if (name === 'instrument' || name === 'instrumenttype' || name == 'ionmode' || name == 'precursormz') {
                 category = "acquisition properties";
             }
 
             return category
-
         }
 
         /**
@@ -153,7 +142,6 @@ angular.module('wohlgemuth.msp.parser', []).
          * @returns {boolean}
          */
         function ignoreField(name, value) {
-
             if (value.length == 0) {
                 return true;
             }
@@ -190,7 +178,6 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param callback
          */
         this.convertWithCallback = function (data, callback) {
-
             $log.debug("starting with parsing new data set...");
 
             /**
@@ -290,7 +277,28 @@ angular.module('wohlgemuth.msp.parser', []).
             return foundBlocks;
         };
 
+        /**
+         * converts the data using a callback
+         * @param data
+         * @param callback
+         */
         this.convertFromData = function (data, callback) {
             return this.convertWithCallback(data, callback);
-        }
+        };
+
+        /**
+         * counts the number of mass spectra in this library file
+         * @param data
+         * @returns {number}
+         */
+        this.countSpectra = function(data) {
+            var count = 0;
+            var pos = -1;
+
+            while((pos = data.indexOf('Num Peaks', pos + 1)) != -1) {
+                count++;
+            }
+
+            return count;
+        };
     });
