@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('wohlgemuth.msp.parser', []).
-    service('gwMspService', function ($log) {
+    service('gwMspService', function ($log,gwCtsService) {
         /**
          * parses the name field content and modifies the spectra object accordingly
          * @param value
@@ -53,7 +53,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 var name = trim(match[1]);
                 var parsedValue = trim(match[2]);
 
-                if (ignoreField(name, parsedValue) == false) {
+                 if (ignoreField(name, parsedValue) == false) {
                     spectra.meta.push({name: name, value: parsedValue, category: category });
                 }
                 match = extractValue.exec(value);
@@ -77,6 +77,21 @@ angular.module('wohlgemuth.msp.parser', []).
          * @returns {*}
          */
         function inspectFields(match, spectra) {
+
+            var regexInchIKey = /.*([A-Z]{14}-[A-Z]{10}-[A-Z,0-9])+.*/;
+
+            //if we contain an inchi key in any propterty of this field
+            if(regexInchIKey.exec(match[2])){
+                spectra.inchiKey = regexInchIKey.exec(match[2])[1];
+            }
+
+            var regexSmiles = /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
+
+            //get an inchi from a smile
+            if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
+                spectra.smile = regexSmiles.exec(match[2])[1];
+            }
+
             //comment fields have quite often additional infomation in them
             if (match[1].toLowerCase() === 'comment') {
                 spectra = handleMetaDataField(match[2], spectra, /(\w+)\s*=\s*([0-9]*\.?[0-9]+)/g);
