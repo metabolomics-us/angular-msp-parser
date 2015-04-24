@@ -85,6 +85,11 @@ angular.module('wohlgemuth.msp.parser', []).
                 spectra.inchiKey = regexInchIKey.exec(match[2])[1];
             }
 
+            //get an inchi
+            else if(match[1].toLowerCase() == 'inchi' || match[1].toLowerCase() == 'inchicode' || match[1].toLowerCase() == 'inchi code') {
+                spectra.inchi = trim(match[2]);
+            }
+
             //get an inchi from a smile
             else if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
                 spectra.smile = regexSmiles.exec(match[2])[1];
