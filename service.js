@@ -24,9 +24,11 @@ angular.module('wohlgemuth.msp.parser', []).
                 spectra.meta.push(
                     {name: 'Retention Index', value: trim(nameMatch[2]), category: findCategory('Retention Index')}
                 )
-            } else if (nameCombinedWithInstruments) {
-                spectra.names.push(trim(nameCombinedWithInstruments[1]));
-            } else {
+            }
+            //else if (nameCombinedWithInstruments) {
+            //    spectra.names.push(trim(nameCombinedWithInstruments[1]));
+            //}
+            else {
                 spectra.names.push(trim(value));
             }
 
@@ -92,7 +94,7 @@ angular.module('wohlgemuth.msp.parser', []).
 
             //get an inchi from a smile
             else if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
-                spectra.smile = regexSmiles.exec(match[2])[1];
+                spectra.smiles = regexSmiles.exec(match[2])[1];
             }
 
             //comment fields have quite often additional infomation in them
