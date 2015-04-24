@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('wohlgemuth.msp.parser', []).
-    service('gwMspService', function ($log,gwCtsService) {
+    service('gwMspService', function ($log) {
         /**
          * parses the name field content and modifies the spectra object accordingly
          * @param value
@@ -77,15 +77,13 @@ angular.module('wohlgemuth.msp.parser', []).
          * @returns {*}
          */
         function inspectFields(match, spectra) {
-
             var regexInchIKey = /.*([A-Z]{14}-[A-Z]{10}-[A-Z,0-9])+.*/;
+            var regexSmiles = /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
 
             //if we contain an inchi key in any propterty of this field
             if(regexInchIKey.exec(match[2])){
                 spectra.inchiKey = regexInchIKey.exec(match[2])[1];
             }
-
-            var regexSmiles = /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
 
             //get an inchi from a smile
             if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
@@ -240,14 +238,16 @@ angular.module('wohlgemuth.msp.parser', []).
 
                 //builds our metadata object
                 while (match != null) {
-
                     if (match[1].toLowerCase() === 'name') {
                         //in case there are RI encoded we extract this information
                         spectra = handleName(match[2], spectra);
                     }
-                    else {
+                    else if (match[1].toLowerCase() === 'num peaks' || match[1].toLowerCase() === 'numpeaks') {
+                        // skip
+                    } else {
                         spectra = inspectFields(match, spectra);
                     }
+
                     match = regExAttributes.exec(current);
                 }
 
@@ -255,6 +255,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 match = regExSpectra.exec(current);
                 spectra.spectrum = "";
                 spectra.accurate = true;
+
                 while (match != null) {
                     foundBlocks = true;
 
