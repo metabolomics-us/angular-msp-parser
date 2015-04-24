@@ -86,12 +86,12 @@ angular.module('wohlgemuth.msp.parser', []).
             }
 
             //get an inchi from a smile
-            if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
+            else if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
                 spectra.smile = regexSmiles.exec(match[2])[1];
             }
 
             //comment fields have quite often additional infomation in them
-            if (match[1].toLowerCase() === 'comment') {
+            else if (match[1].toLowerCase() === 'comment') {
                 spectra = handleMetaDataField(match[2], spectra, /(\w+)\s*=\s*([0-9]*\.?[0-9]+)/g);
             }
 
@@ -175,10 +175,13 @@ angular.module('wohlgemuth.msp.parser', []).
             else if (name == "formula") {
                 return true;
             }
-            else if(name == "synon"){
+            else if(name == "synon") {
                 return true;
             }
-            else if(name == "id"){
+            else if(name == "id") {
+                return true
+            }
+            else if(name == "num peaks" || name == "numpeaks") {
                 return true
             }
 
@@ -241,9 +244,6 @@ angular.module('wohlgemuth.msp.parser', []).
                     if (match[1].toLowerCase() === 'name') {
                         //in case there are RI encoded we extract this information
                         spectra = handleName(match[2], spectra);
-                    }
-                    else if (match[1].toLowerCase() === 'num peaks' || match[1].toLowerCase() === 'numpeaks') {
-                        // skip
                     } else {
                         spectra = inspectFields(match, spectra);
                     }
