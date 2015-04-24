@@ -18,16 +18,16 @@ angular.module('wohlgemuth.msp.parser', []).
 
             if (nameMatch) {
                 //sets the new name
-                spectra.name = trim(nameMatch[1]);
+                spectra.names.push(trim(nameMatch[1]));
 
                 //adds it as retention index
                 spectra.meta.push(
                     {name: 'Retention Index', value: trim(nameMatch[2]), category: findCategory('Retention Index')}
                 )
             } else if (nameCombinedWithInstruments) {
-                spectra.name = trim(nameCombinedWithInstruments[1]);
+                spectra.names.push(trim(nameCombinedWithInstruments[1]));
             } else {
-                spectra.name = trim(value);
+                spectra.names.push(trim(value));
             }
 
             return spectra
@@ -233,7 +233,7 @@ angular.module('wohlgemuth.msp.parser', []).
             while (blocks != null) {
 
                 //contains the resulting spectra object
-                var spectra = {meta: []};
+                var spectra = {meta: [], names: []};
 
                 //parse the first block and assign
                 var current = blocks[0];
@@ -241,7 +241,7 @@ angular.module('wohlgemuth.msp.parser', []).
 
                 //builds our metadata object
                 while (match != null) {
-                    if (match[1].toLowerCase() === 'name') {
+                    if (match[1].toLowerCase() === 'name' || match[1].toLowerCase() === 'synon') {
                         //in case there are RI encoded we extract this information
                         spectra = handleName(match[2], spectra);
                     } else {
@@ -278,7 +278,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 spectra.spectrum = trim(spectra.spectrum);
 
                 //make sure we have at least a spectrum and a name
-                if (spectra.spectrum != null && spectra.name != null) {
+                if (spectra.spectrum != null && spectra.names.length > 0) {
                     //invoke the callback function
                     callback(spectra);
                 }
