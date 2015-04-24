@@ -161,27 +161,7 @@ angular.module('wohlgemuth.msp.parser', []).
 
             name = name.toLowerCase();
 
-            if (name == "retentiontime" && value <= 0) {
-                return true;
-            }
-            else if (name == "retentionindex" && value <= 0) {
-                return true;
-            }
-            //if 0, it doesn't count
-            else if ((name === "precursormz" || name === "derivative_mass" || name === 'parent') && value <= 0) {
-                return true;
-            }
-            //we get this over the inchi key
-            else if (name == "formula") {
-                return true;
-            }
-            else if(name == "synon") {
-                return true;
-            }
-            else if(name == "id") {
-                return true
-            }
-            else if(name == "num peaks" || name == "numpeaks") {
+            if (name == "num peaks" || name == "numpeaks") {
                 return true
             }
 
