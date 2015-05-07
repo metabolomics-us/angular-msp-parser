@@ -201,7 +201,7 @@ angular.module('wohlgemuth.msp.parser', []).
              * optional third block are identifications of this ion
              * @type {RegExp}
              */
-            var regExSpectra = /([0-9]*\.?[0-9]+)[ \t]+([0-9]*\.?[0-9]+)(?:.*\"(.*)\"\n)?/g;
+            var regExSpectra = /([0-9]*\.?[0-9]+)[ \t]+([0-9]*\.?[0-9]+)(?:\s*(.*)\n?)?/g;
 
             /**
              * is this an accurate mass
