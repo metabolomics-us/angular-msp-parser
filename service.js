@@ -32,7 +32,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 spectra.names.push(trim(value));
             }
 
-            return spectra
+            return spectra;
         }
 
         /**
@@ -69,7 +69,7 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param str
          */
         function trim(str) {
-            return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '').replaceAll("^\"|\"$", '');
+            return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
         }
 
         /**
@@ -254,7 +254,7 @@ angular.module('wohlgemuth.msp.parser', []).
                     }
 
                     if (angular.isDefined(match[3])) {
-                        spectra.meta.push({name: trim(match[3]), value: match[1], category: 'annotation'});
+                        spectra.meta.push({name: trim(match[3]).replace(/(^"|"$)/g, ''), value: match[1], category: 'annotation'});
                     }
 
                     //get the next match
