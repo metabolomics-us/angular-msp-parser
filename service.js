@@ -137,8 +137,8 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param name
          */
         function findCategory(name) {
-            var name = name.toLocaleLowerCase();
             var category = "none";
+            name = name.toLocaleLowerCase();
 
             //mass spectral properties
             if (name === '') {}
@@ -170,9 +170,9 @@ angular.module('wohlgemuth.msp.parser', []).
 
             if (name == "num peaks" || name == "numpeaks") {
                 return true
+            } else {
+                return false;
             }
-
-            return false;
         }
 
         /**
