@@ -80,7 +80,8 @@ angular.module('wohlgemuth.msp.parser', []).
          */
         function inspectFields(match, spectra) {
             var regexInchIKey = /.*([A-Z]{14}-[A-Z]{10}-[A-Z,0-9])+.*/;
-            var regexSmiles = /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
+            //var regexSmiles = /^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
+            var regexSmiles = /^([^J][0-9A-Za-z@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
 
             //if we contain an inchi key in any propterty of this field
             if(regexInchIKey.exec(match[2])){
