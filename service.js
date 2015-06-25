@@ -69,7 +69,7 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param str
          */
         function trim(str) {
-            return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '').replace(/^"(.*)"$/, '$1');
         }
 
         /**
