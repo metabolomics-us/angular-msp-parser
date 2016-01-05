@@ -202,7 +202,9 @@ angular.module('wohlgemuth.msp.parser', []).
              * optional third block are identifications of this ion
              * @type {RegExp}
              */
-            var regExSpectra = /([0-9]*\.?[0-9]+)[ \t]+([0-9]*\.?[0-9]+)(?:.*\"(.*)\"\n)?/g;
+            var regExSpectra = /([0-9]+\.?[0-9]*)[ \t]+([0-9]*\.?[0-9]+)(?:\s*(?:[;\n])|(?:"?(.+)"?\n?))?/g;
+            //regExSpectra = /([0-9]*\.?[0-9]+)[ \t]+([0-9]*\.?[0-9]+)(?:\s*(.*)\n?)?/g;
+            //regExSpectra = /([0-9]*\.?[0-9]+)\s+([0-9]*\.?[0-9]+)(?:\s*"?(.*)"?\n)?;?/g;
 
             /**
              * is this an accurate mass
@@ -216,10 +218,9 @@ angular.module('wohlgemuth.msp.parser', []).
 
             //return code
             var foundBlocks = false;
+
             //go over all available blocks
-
             while (blocks != null) {
-
                 //contains the resulting spectra object
                 var spectra = {meta: [], names: []};
 
@@ -229,6 +230,9 @@ angular.module('wohlgemuth.msp.parser', []).
 
                 //builds our metadata object
                 while (match != null) {
+                    match[1] = trim(match[1]);
+                    match[2] = trim(match[2]);
+
                     if (match[1].toLowerCase() === 'name' || match[1].toLowerCase() === 'synon') {
                         //in case there are RI encoded we extract this information
                         spectra = handleName(match[2], spectra);
@@ -239,8 +243,14 @@ angular.module('wohlgemuth.msp.parser', []).
                     match = regExAttributes.exec(current);
                 }
 
+                // keep only unique names
+                spectra.names = spectra.names.reduce(function(p, c) {
+                    if (p.indexOf(c) < 0) p.push(c);
+                    return p;
+                }, []);
+
                 //builds the actual spectra
-                match = regExSpectra.exec(current);
+                match = regExSpectra.exec(blocks[2]);
                 spectra.spectrum = "";
                 spectra.accurate = true;
 
@@ -259,7 +269,7 @@ angular.module('wohlgemuth.msp.parser', []).
                     }
 
                     //get the next match
-                    match = regExSpectra.exec(current);
+                    match = regExSpectra.exec(blocks[2]);
                 }
 
                 //assign the trimmed spectra
@@ -269,8 +279,7 @@ angular.module('wohlgemuth.msp.parser', []).
                 if (spectra.spectrum != null && spectra.names.length > 0) {
                     //invoke the callback function
                     callback(spectra);
-                }
-                else {
+                } else {
                     $log.warn('invalid spectra found -> ignored');
                 }
 
