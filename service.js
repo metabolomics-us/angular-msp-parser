@@ -194,7 +194,7 @@ angular.module('wohlgemuth.msp.parser', []).
              * extracts the attribures like 'name' and 'value' from a found line
              * @type {RegExp}
              */
-            var regExAttributes = /\s*([a-zA-Z _$]+):(.+)\s/g;
+            var regExAttributes = /\s*([a-zA-Z _$\/]+):(.+)\s/g;
 
             /**
              * first block captures meta data
