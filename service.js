@@ -1,10 +1,15 @@
 /**
  * Created by Gert on 6/16/2014.
  */
-'use strict';
+(function () {
+    'use strict';
 
-angular.module('wohlgemuth.msp.parser', []).
-    service('gwMspService', function ($log) {
+    angular.module('wohlgemuth.msp.parser', [])
+        .service('gwMspService', gwMspService);
+
+    gwMspService.$inject = ['$log'];
+
+    function gwMspService($log) {
         /**
          * parses the name field content and modifies the spectra object accordingly
          * @param value
@@ -55,8 +60,8 @@ angular.module('wohlgemuth.msp.parser', []).
                 var name = trim(match[1]);
                 var parsedValue = trim(match[2]);
 
-                 if (ignoreField(name, parsedValue) == false) {
-                    spectra.meta.push({name: name, value: parsedValue, category: category });
+                if (ignoreField(name, parsedValue) == false) {
+                    spectra.meta.push({name: name, value: parsedValue, category: category});
                 }
                 match = extractValue.exec(value);
             }
@@ -84,17 +89,17 @@ angular.module('wohlgemuth.msp.parser', []).
             var regexSmiles = /^([^J][0-9A-Za-z@+\-\[\]\(\)\\\/%=#$,.~&!]{6,})$/;
 
             //if we contain an inchi key in any propterty of this field
-            if(regexInchIKey.exec(match[2])){
+            if (regexInchIKey.exec(match[2])){
                 spectra.inchiKey = regexInchIKey.exec(match[2])[1];
             }
 
             //get an inchi
-            else if(match[1].toLowerCase() == 'inchi' || match[1].toLowerCase() == 'inchicode' || match[1].toLowerCase() == 'inchi code') {
+            else if (match[1].toLowerCase() == 'inchi' || match[1].toLowerCase() == 'inchicode' || match[1].toLowerCase() == 'inchi code') {
                 spectra.inchi = trim(match[2]);
             }
 
             //get an inchi from a smile
-            else if(match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])){
+            else if (match[1].toLowerCase() == 'smiles' && regexSmiles.exec(match[2])) {
                 spectra.smiles = regexSmiles.exec(match[2])[1];
             }
 
@@ -181,7 +186,7 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param data
          * @param callback
          */
-        this.convertWithCallback = function (data, callback) {
+        this.convertWithCallback = function(data, callback) {
             $log.debug("starting with parsing new data set...");
 
             /**
@@ -265,7 +270,11 @@ angular.module('wohlgemuth.msp.parser', []).
                     }
 
                     if (angular.isDefined(match[3])) {
-                        spectra.meta.push({name: trim(match[3]).replace(/(^"|"$)/g, ''), value: match[1], category: 'annotation'});
+                        spectra.meta.push({
+                            name: trim(match[3]).replace(/(^"|"$)/g, ''),
+                            value: match[1],
+                            category: 'annotation'
+                        });
                     }
 
                     //get the next match
@@ -295,7 +304,7 @@ angular.module('wohlgemuth.msp.parser', []).
          * @param data
          * @param callback
          */
-        this.convertFromData = function (data, callback) {
+        this.convertFromData = function(data, callback) {
             return this.convertWithCallback(data, callback);
         };
 
@@ -308,10 +317,11 @@ angular.module('wohlgemuth.msp.parser', []).
             var count = 0;
             var pos = -1;
 
-            while((pos = data.indexOf('Num Peaks', pos + 1)) != -1) {
+            while ((pos = data.indexOf('Num Peaks', pos + 1)) != -1) {
                 count++;
             }
 
             return count;
         };
-    });
+    }
+})();
