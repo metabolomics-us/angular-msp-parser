@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
-import {LoggerModule, NgxLoggerLevel} from "ngx-logger";
-import {MspParserLibService} from "./msp-parser-lib.service";
-import {HttpClientModule} from "@angular/common/http";
+import {LoggerModule, NgxLoggerLevel} from 'ngx-logger';
+import {MspParserLibService} from './msp-parser-lib.service';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   imports: [
