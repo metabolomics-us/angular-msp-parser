@@ -213,6 +213,7 @@ class MspParserLibService {
                 }
                 else {
                     this.logger.warn('invalid spectra found -> ignored');
+                    callback(undefined);
                 }
                 // fetch the next matching block
                 blocks = blockRegEx.exec(buf);

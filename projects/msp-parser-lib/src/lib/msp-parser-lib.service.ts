@@ -263,6 +263,7 @@ export class MspParserLibService {
         callback(spectra);
       } else {
         this.logger.warn('invalid spectra found -> ignored');
+        callback(undefined);
       }
 
       // fetch the next matching block
