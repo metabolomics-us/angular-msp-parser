@@ -212,8 +212,8 @@ class MspParserLibService {
                     callback(spectra);
                 }
                 else {
+                    callback('THIS IS A TEST');
                     this.logger.warn('invalid spectra found -> ignored');
-                    callback(undefined);
                 }
                 // fetch the next matching block
                 blocks = blockRegEx.exec(buf);

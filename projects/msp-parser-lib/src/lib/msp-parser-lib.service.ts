@@ -262,8 +262,8 @@ export class MspParserLibService {
         // invoke the callback function
         callback(spectra);
       } else {
+        callback('THIS IS A TEST');
         this.logger.warn('invalid spectra found -> ignored');
-        callback(undefined);
       }
 
       // fetch the next matching block
