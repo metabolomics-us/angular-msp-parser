@@ -167,7 +167,7 @@
                     var current = blocks[0];
                     var match = regExAttributes.exec(current);
                     // builds our metadata object
-                    while (match != null) {
+                    while (match !== null) {
                         match[1] = _this.trim(match[1]);
                         match[2] = _this.trim(match[2]);
                         if (match[1].toLowerCase() === 'name' || match[1].toLowerCase() === 'synon') {
@@ -216,7 +216,7 @@
                     }
                     else {
                         callback(null);
-                        _this.logger.warn('invalid spectra found -> ignored');
+                        _this.logger.warn(spectra.names + " is an invalid spectra -> ignored");
                     }
                     // fetch the next matching block
                     blocks = blockRegEx.exec(buf);

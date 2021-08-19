@@ -164,7 +164,7 @@ class MspParserLibService {
                 const current = blocks[0];
                 let match = regExAttributes.exec(current);
                 // builds our metadata object
-                while (match != null) {
+                while (match !== null) {
                     match[1] = this.trim(match[1]);
                     match[2] = this.trim(match[2]);
                     if (match[1].toLowerCase() === 'name' || match[1].toLowerCase() === 'synon') {
@@ -213,7 +213,7 @@ class MspParserLibService {
                 }
                 else {
                     callback(null);
-                    this.logger.warn('invalid spectra found -> ignored');
+                    this.logger.warn(`${spectra.names} is an invalid spectra -> ignored`);
                 }
                 // fetch the next matching block
                 blocks = blockRegEx.exec(buf);

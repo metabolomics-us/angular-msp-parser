@@ -207,7 +207,7 @@ export class MspParserLibService {
       let match = regExAttributes.exec(current);
 
       // builds our metadata object
-      while (match != null) {
+      while (match !== null) {
         match[1] = this.trim(match[1]);
         match[2] = this.trim(match[2]);
 
@@ -262,7 +262,7 @@ export class MspParserLibService {
         callback(spectra);
       } else {
         callback(null);
-        this.logger.warn('invalid spectra found -> ignored');
+        this.logger.warn(`${spectra.names} is an invalid spectra -> ignored`);
       }
 
       // fetch the next matching block
