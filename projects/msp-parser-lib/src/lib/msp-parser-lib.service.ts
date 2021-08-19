@@ -169,7 +169,7 @@ export class MspParserLibService {
     /**
      * checks for a complete block of msp data.
      */
-    const blockRegEx = /((?:.*:\s*[^\n]*\n?)+)\n((?:\s*[0-9]*\.?[0-9]+\s+[0-9]*\.?[0-9]+[;\n]?.*\n?)+)/g;
+    const blockRegEx = /((?:.*:\s*[^\n]*\n?)+)\n((?:\s*[0-9]*\.?[0-9]+\s+[0-9]*\.?[0-9]+[;\n]?.*\n?)*)/g;
 
     /**
      * extracts the attribures like 'name' and 'value' from a found line

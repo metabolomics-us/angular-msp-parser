@@ -138,7 +138,7 @@
                 /**
                  * checks for a complete block of msp data.
                  */
-                var blockRegEx = /((?:.*:\s*[^\n]*\n?)+)\n((?:\s*[0-9]*\.?[0-9]+\s+[0-9]*\.?[0-9]+[;\n]?.*\n?)+)/g;
+                var blockRegEx = /((?:.*:\s*[^\n]*\n?)+)\n((?:\s*[0-9]*\.?[0-9]+\s+[0-9]*\.?[0-9]+[;\n]?.*\n?)*)/g;
                 /**
                  * extracts the attribures like 'name' and 'value' from a found line
                  */
