@@ -118,14 +118,9 @@ describe('gwMspService test', () => {
 
 
       const result = service.convertFromData(data, (res) => {
-        // console.log($filter('json')(result));
-
         expect(res.names[0]).toEqual('1,2-Dithiane-4,5-diol-S-oxide');
         expect(res.meta.length).toEqual(9);
         expect(res.accurate).toBeFalsy();
-        console.log(res.spectrum.split(' ').length);
-        console.log(res.spectrum);
-        console.log(res.spectrum.split(' '));
         expect(res.spectrum.split(' ').length).toEqual(7);
       });
 
@@ -158,8 +153,6 @@ describe('gwMspService test', () => {
 
 
       const result = service.convertFromData(data, (res) => {
-        // console.log($filter('json')(result));
-
         expect(res.names[0]).toEqual('Carnosic Acid');
         expect(res.meta.length).toEqual(14);
         expect(res.accurate).toBeTruthy();
@@ -187,8 +180,6 @@ describe('gwMspService test', () => {
         '135.11738 200 \"C10H15\"\n';
 
       const result = service.convertFromData(data, (res) =>  {
-        // console.log($filter('json')(result));
-
         expect(res.names[0]).toEqual('18:3 Cholesteryl ester; [M+H]+');
         expect(res.meta.length).toEqual(13);
         expect(res.accurate).toBeTruthy();
@@ -220,8 +211,6 @@ describe('gwMspService test', () => {
         '188.082	86\n';
 
       const result = service.convertFromData(data, (res) => {
-        // console.log($filter('json')(result));
-
         expect(res.names[0]).toEqual('Metamitron-desamino; LC-ESI-ITFT; MS2; CE: 35%; R=7500; [M+H]+');
         expect(res.meta.length).toEqual(12);
         expect(res.accurate).toBeTruthy();
@@ -268,8 +257,6 @@ describe('gwMspService test', () => {
         '169    1.0;201    1.0;451    1.0;\n';
 
       const result = service.convertFromData(data, (res) =>  {
-        // console.log($filter('json')(result));
-
         expect(res.names[0]).toEqual('C4');
         expect(res.meta.length).toBe(23);
         expect(res.accurate).toBeFalsy();
@@ -277,6 +264,27 @@ describe('gwMspService test', () => {
       });
 
       expect(result).toBeTruthy();
+    });
+
+    it('should return null spectrum', () => {
+      const data =
+          'NAME: Metamitron-desamino; LC-ESI-ITFT; MS2; CE: 35%; R=7500; [M+H]+\n' +
+          'PRECURSORMZ: 188.0818\n' +
+          'INSTRUMENTTYPE: LC-ESI-ITFT\n' +
+          'INSTRUMENT: LTQ Orbitrap XL Thermo Scientific\n' +
+          'License: CC BY-SA\n' +
+          'COLLISIONENERGY: 35 % (nominal)\n' +
+          'FORMULA: C10H9N3O1\n' +
+          'RETENTIONTIME: -1\n' +
+          'IONMODE: P\n' +
+          'SearchID: MassBank: EA000401; KEGG: ; CAS: CAS 36993-94-9; ChemSpider: 157884; PubChem CID: 181502; PubChem SID:\n' +
+          'Num Peaks: 0\n';
+
+      const result = service.convertFromData(data, (res) => {
+        expect(res).toEqual(null);
+      });
+
+      expect(result).toBeFalsy();
     });
   });
 });

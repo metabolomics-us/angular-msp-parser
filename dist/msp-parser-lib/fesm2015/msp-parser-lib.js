@@ -187,7 +187,7 @@ class MspParserLibService {
                 match = regExSpectra.exec(blocks[2]);
                 spectra.spectrum = '';
                 spectra.accurate = true;
-                while (match != null) {
+                while (match !== null) {
                     foundBlocks = true;
                     spectra.spectrum = spectra.spectrum + ' ' + match[1] + ':' + match[2];
                     // used to determine if this is an accurate mass spectra or not
@@ -207,12 +207,12 @@ class MspParserLibService {
                 // assign the trimmed spectra
                 spectra.spectrum = this.trim(spectra.spectrum);
                 // make sure we have at least a spectrum and a name
-                if (spectra.spectrum != null && spectra.names.length > 0) {
+                if (spectra.spectrum !== '' && spectra.names.length > 0 && spectra.spectrum.length > 0) {
                     // invoke the callback function
                     callback(spectra);
                 }
                 else {
-                    callback('THIS IS A TEST');
+                    callback(null);
                     this.logger.warn('invalid spectra found -> ignored');
                 }
                 // fetch the next matching block
